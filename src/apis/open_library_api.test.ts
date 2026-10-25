@@ -75,6 +75,24 @@ describe('Open Library book creation', () => {
     expect(fallback.previewLink).toEqual('');
   });
 
+  it('Does not mix work ISBNs into a matched edition', () => {
+    const noIsbnEdition = api.createBookItem({
+      ...work,
+      editions: { numFound: 1, docs: [{ ...work.editions!.docs[0], isbn: undefined }] },
+    });
+    expect(noIsbnEdition.isbn10).toEqual('');
+    expect(noIsbnEdition.isbn13).toEqual('');
+  });
+
+  it('Normalizes hyphenated ISBNs', () => {
+    const hyphenated = api.createBookItem({
+      ...work,
+      editions: { numFound: 1, docs: [{ ...work.editions!.docs[0], isbn: ['978-0-06-154812-3', '0-06-187672-0'] }] },
+    });
+    expect(hyphenated.isbn10).toEqual('0061876720');
+    expect(hyphenated.isbn13).toEqual('9780061548123');
+  });
+
   it('Handles missing cover and authors', () => {
     const sparse = api.createBookItem({ key: '/works/OL1W', title: 'Untitled' });
     expect(sparse.author).toEqual('');

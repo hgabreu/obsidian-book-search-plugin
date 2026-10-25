@@ -75,7 +75,8 @@ export class OpenLibraryApi implements BaseBooksApiImpl {
     const edition: OpenLibraryEdition | undefined = work.editions?.docs?.[0];
     const authors = work.author_name ?? [];
     const coverId = edition?.cover_i ?? work.cover_i;
-    const isbns = edition?.isbn ?? work.isbn ?? [];
+    // Work ISBNs span all editions, so only fall back to them when no edition was matched
+    const isbns = (edition ? edition.isbn : work.isbn)?.map(isbn => isbn.replace(/[\s-]/g, '')) ?? [];
 
     return {
       title: edition?.title ?? work.title,
